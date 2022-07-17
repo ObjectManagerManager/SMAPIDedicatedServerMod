@@ -4,6 +4,8 @@ namespace DedicatedServer.Config
 {
     public class ModConfig
     {
+        public string FarmName { get; set; } = "Stardew";
+
         // Options are 0, 1, 2, or 3.
         public int StartingCabins { get; set; } = 1;
 
@@ -15,22 +17,6 @@ namespace DedicatedServer.Config
 
         // Options are "shared" or "separate"
         public string MoneyStyle { get; set; } = "shared";
-
-        public string FarmName { get; set; } = "Stardew";
-
-        public bool AcceptPet = true; // By default, accept the pet (of course).
-        
-        // Nullable. Must not be null if AcceptPet is true. Options are "dog" or "cat".
-        public string PetSpecies { get; set; } = "dog";
-
-        // Nullable. Must not be null if AcceptPet is true. Options are 0, 1, or 2.
-        public int? PetBreed { get; set; } = 0;
-
-        // Nullable. Must not be null if AcceptPet is true. Any string.
-        public string PetName { get; set; } = "Stella";
-
-        // Options are "Mushrooms" or "Bats" (case-insensitive)
-        public string MushroomsOrBats { get; set; } = "Mushrooms";
 
         // Options are "standard", "riverland", "forest", "hilltop", "wilderness", "fourcorners", "beach".
         public string FarmType { get; set; } = "standard";
@@ -46,5 +32,19 @@ namespace DedicatedServer.Config
         public bool SpawnMonstersOnFarmAtNight { get; set; } = false;
 
         public ulong? RandomSeed { get; set; } = null;
+
+        public bool AcceptPet = true; // By default, accept the pet (of course).
+        
+        // Nullable. Must not be null if AcceptPet is true. Options are "dog" or "cat".
+        public string PetSpecies { get; set; } = "dog";
+
+        // Nullable. Must not be null if AcceptPet is true. Options are 0, 1, or 2.
+        public int? PetBreed { get; set; } = 0;
+
+        // Nullable. Must not be null if AcceptPet is true. Any string.
+        public string PetName { get; set; } = "Stella";
+
+        // Options are "Mushrooms" or "Bats" (case-insensitive)
+        public string MushroomsOrBats { get; set; } = "Mushrooms";
     }
 }
