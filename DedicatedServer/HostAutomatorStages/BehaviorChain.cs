@@ -44,7 +44,6 @@ namespace DedicatedServer.HostAutomatorStages
                 new TransitionFestivalEndBehaviorLink(),
                 new ProcessFestivalChatBoxBehaviorLink()
             };
-
             // Build chain and set head
             for (int i = 0; i < chain.Length - 1; i++)
             {

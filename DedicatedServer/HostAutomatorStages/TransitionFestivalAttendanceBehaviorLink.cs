@@ -43,7 +43,7 @@ namespace DedicatedServer.HostAutomatorStages
                     {
                         Game1.exitActiveMenu();
                         info.Invoke(null, new object[] { Game1.getLocationRequest(warp.TargetName), 0, 0, Game1.player.facingDirection.Value });
-                        if ((Game1.currentSeason != "fall" || Game1.dayOfMonth != 27) && (Game1.currentSeason != "winter" || Game1.dayOfMonth != 25)) // Don't enable chat box on spirit's even nor feast of the winter star
+                        if ((Game1.currentSeason != "fall" || Game1.dayOfMonth != 27) && (Game1.currentSeason != "winter" || Game1.dayOfMonth != 25)) // Don't enable chat box on spirit's eve nor feast of the winter star
                         {
                             state.EnableFestivalChatBox();
                         }

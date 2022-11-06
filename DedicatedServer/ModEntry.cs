@@ -34,6 +34,11 @@ namespace DedicatedServer
         {
             var config = helper.ReadConfig<ModConfig>();
             new StartFarmStage(helper, Monitor, config).Enable();
+            helper.Events.GameLoop.UpdateTicked += PrintDebug;
+        }
+
+        private void PrintDebug(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
+        {
         }
     }
 }

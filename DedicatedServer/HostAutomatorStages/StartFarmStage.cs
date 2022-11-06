@@ -4,6 +4,8 @@ using DedicatedServer.Crops;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Buildings;
+using StardewValley.Locations;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
@@ -284,6 +286,37 @@ namespace DedicatedServer.HostAutomatorStages
             var chatBox = new EventDrivenChatBox();
             Game1.chatBox = chatBox;
             Game1.onScreenMenus.Add(chatBox);
+            // Update the player limits (remove them)
+            // This breaks the game since there are loops which iterate in the range
+            // (1, ..., HighestPlayerLimit). I think the only loops regarding this
+            // value are around loading / creating cellar maps on world load...
+            // maybe we just have to sacrifice cellar-per-player. Or maybe we have to
+            // update the value dynamically, and load new cellars whenever a new player
+            // joins? Unclear...
+            //Game1.netWorldState.Value.HighestPlayerLimit.Value = int.MaxValue;
+            Game1.netWorldState.Value.CurrentPlayerLimit.Value = int.MaxValue;
+            // NOTE: It will be very difficult, if not impossible, to remove the
+            // cabin-per-player requirement. This requirement is very much built in
+            // to much of the multiplayer networking connect / disconnect logic, and,
+            // more importantly, every cabin has a SINGLE "farmhand" assigned to it.
+            // Indeed, it's a 1-to-1 relationship---multiple farmers can't be assigned
+            // to the same cabin. And this is a property of the cabin interface, so
+            // it can't even be extended / modified. The most viable way to remove the
+            // cabin-per-player requirement would be to create "invisible cabins"
+            // which all sit on top of the farmhouse (for instance). They'd have
+            // to be invisible (so that only the farmhouse is rendered), and
+            // somehow they'd have to be made so that you can't collide with them
+            // (though maybe this could be solved naturally by placing it to overlap
+            // with the farmhouse in just the right position). Whenever a player enters
+            // one of these cabins automatically (e.g., by warping home after passing out),
+            // they'd have to be warped out of it immediately back into the farmhouse, since
+            // these cabins should NOT be enterable in general (this part might be impossible
+            // to do seamlessly, but it could theoretically be done in some manner). The mailbox
+            // for the farmhouse would have to somehow be used instead of the cabin's mailbox (this
+            // part might be totally impossible). And there would always have to be at least one
+            // unclaimed invisible cabin at all times (every time one is claimed by a joining player,
+            // create a new one). This would require a lot of work, and the mailbox part might
+            // be totally impossible.
             automatedHost = new AutomatedHost(helper, monitor, config, chatBox);
             automatedHost.Enable();
         }
