@@ -1,11 +1,10 @@
 ﻿using DedicatedServer.Chat;
 using DedicatedServer.Config;
 using DedicatedServer.Crops;
+using DedicatedServer.MessageCommands;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Buildings;
-using StardewValley.Locations;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
@@ -23,6 +22,7 @@ namespace DedicatedServer.HostAutomatorStages
         private ModConfig config;
         private CropSaver cropSaver = null;
         private AutomatedHost automatedHost = null;
+        private BuildCommandListener buildCommandListener = null;
 
         public StartFarmStage(IModHelper helper, IMonitor monitor, ModConfig config) : base(helper)
         {
@@ -319,15 +319,17 @@ namespace DedicatedServer.HostAutomatorStages
             // be totally impossible.
             automatedHost = new AutomatedHost(helper, monitor, config, chatBox);
             automatedHost.Enable();
+
+            buildCommandListener = new BuildCommandListener(chatBox);
+            buildCommandListener.Enable();
         }
 
         private void onReturnToTitle(object sender, ReturnedToTitleEventArgs e)
         {
-            if (automatedHost != null)
-            {
-                automatedHost.Disable();
-                automatedHost = null;
-            }
+            automatedHost?.Disable();
+            automatedHost = null;
+            buildCommandListener?.Disable();
+            buildCommandListener = null;
         }
     }
 }
