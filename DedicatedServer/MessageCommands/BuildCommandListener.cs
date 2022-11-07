@@ -32,8 +32,25 @@ namespace DedicatedServer.MessageCommands
             {
                 var point = farmer.getTileLocation();
                 var blueprint = new BluePrint(cabinBlueprintName);
-                point.X -= blueprint.humanDoor.X; // Shift the point so that the door is at the player's horizontal location
-                point.Y -= blueprint.tilesHeight; // Shift the point so that the cabin's directly above the player
+                switch (farmer.facingDirection.Value)
+                {
+                    case 1: // Right
+                        point.X++;
+                        point.Y -= (blueprint.tilesHeight / 2);
+                        break;
+                    case 2: // Down
+                        point.X -= (blueprint.tilesWidth / 2);
+                        point.Y++;
+                        break;
+                    case 3: // Left
+                        point.X -= blueprint.tilesWidth;
+                        point.Y -= (blueprint.tilesHeight / 2);
+                        break;
+                    default: // 0 = Up
+                        point.X -= (blueprint.tilesWidth / 2);
+                        point.Y -= blueprint.tilesHeight;
+                        break;
+                }
                 Game1.player.team.buildLock.RequestLock(delegate
                 {
                     if (Game1.locationRequest == null)
