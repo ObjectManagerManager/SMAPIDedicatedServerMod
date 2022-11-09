@@ -23,6 +23,7 @@ namespace DedicatedServer.HostAutomatorStages
         private CropSaver cropSaver = null;
         private AutomatedHost automatedHost = null;
         private BuildCommandListener buildCommandListener = null;
+        private DemolishCommandListener demolishCommandListener = null;
 
         public StartFarmStage(IModHelper helper, IMonitor monitor, ModConfig config) : base(helper)
         {
@@ -322,6 +323,8 @@ namespace DedicatedServer.HostAutomatorStages
 
             buildCommandListener = new BuildCommandListener(chatBox);
             buildCommandListener.Enable();
+            demolishCommandListener = new DemolishCommandListener(chatBox);
+            demolishCommandListener.Enable();
         }
 
         private void onReturnToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -330,6 +333,8 @@ namespace DedicatedServer.HostAutomatorStages
             automatedHost = null;
             buildCommandListener?.Disable();
             buildCommandListener = null;
+            demolishCommandListener?.Disable();
+            demolishCommandListener = null;
         }
     }
 }
