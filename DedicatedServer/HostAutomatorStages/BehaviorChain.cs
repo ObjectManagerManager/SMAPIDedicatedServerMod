@@ -39,6 +39,7 @@ namespace DedicatedServer.HostAutomatorStages
                 new SkipShippingMenuBehaviorLink(),
                 new CheckForParsnipSeedsBehaviorLink(),
                 new ExitFarmHouseBehaviorLink(),
+                new GetFishingRodBehaviorLink(),
                 new TransitionSleepBehaviorLink(),
                 new TransitionFestivalAttendanceBehaviorLink(),
                 new TransitionFestivalEndBehaviorLink(),

@@ -318,6 +318,10 @@ namespace DedicatedServer.HostAutomatorStages
             // unclaimed invisible cabin at all times (every time one is claimed by a joining player,
             // create a new one). This would require a lot of work, and the mailbox part might
             // be totally impossible.
+
+            //We set bot mining lvl to 10 so he doesn't lvlup passively
+            Game1.player.MiningLevel = 10;
+
             automatedHost = new AutomatedHost(helper, monitor, config, chatBox);
             automatedHost.Enable();
 

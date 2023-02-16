@@ -1,13 +1,11 @@
 ﻿using Netcode;
-using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DedicatedServer.HostAutomatorStages
 {
@@ -36,6 +34,32 @@ namespace DedicatedServer.HostAutomatorStages
             {
                 readyChecks = readyChecksFieldInfo.GetValue(Game1.player.team);
             }
+
+            //Unlocks the community center
+            if (Game1.Date.TotalDays > 5 && !Game1.player.eventsSeen.Contains(611439)) {
+                Game1.player.eventsSeen.Add(611439);
+                Game1.MasterPlayer.mailReceived.Add("ccDoorUnlock");
+            }
+
+            //Checking mailbox sometimes gives some gold, but it's compulsory to unlock some events
+            for (int i = 0; i < 10; ++i) {
+                Game1.getFarm().mailbox();
+            }
+
+            //Unlocks the sewer
+            if (Game1.netWorldState.Value.MuseumPieces.Count() >= 60 && !Game1.player.eventsSeen.Contains(295672)) {
+                Game1.player.eventsSeen.Add(295672);
+                Game1.player.eventsSeen.Add(66);
+                Game1.player.hasRustyKey = true;
+            }
+
+            //Upgrade farmhouse to match highest level cabin
+            var targetLevel = Game1.getFarm().buildings.Where(o => o.isCabin).Select(o => ((Cabin)o.indoors.Value).upgradeLevel).DefaultIfEmpty(0).Max();
+            if (targetLevel > Game1.player.HouseUpgradeLevel) {
+                Game1.player.HouseUpgradeLevel = targetLevel;
+                Game1.player.performRenovation("FarmHouse");
+            }
+            
 
             Dictionary<string, NetFarmerCollection> newReadyPlayersDictionary = new Dictionary<string, NetFarmerCollection>();
             foreach (var checkName in readyPlayersDictionary.Keys)
