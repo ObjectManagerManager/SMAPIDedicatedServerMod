@@ -31,8 +31,10 @@ namespace DedicatedServer.HostAutomatorStages
             this.monitor = monitor;
             this.config = config;
             helper.Events.GameLoop.SaveLoaded += onSaveLoaded;
-            cropSaver = new CropSaver(helper, monitor, config);
-            cropSaver.Enable();
+            if (config.EnableCropSaver) {
+                cropSaver = new CropSaver(helper, monitor, config);
+                cropSaver.Enable();
+            }
             helper.Events.GameLoop.DayStarted += ReadyCheckHelper.OnDayStarted;
             helper.Events.GameLoop.ReturnedToTitle += onReturnToTitle;
         }
