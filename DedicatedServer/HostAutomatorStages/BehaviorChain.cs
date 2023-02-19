@@ -40,6 +40,8 @@ namespace DedicatedServer.HostAutomatorStages
                 new CheckForParsnipSeedsBehaviorLink(),
                 new ExitFarmHouseBehaviorLink(),
                 new GetFishingRodBehaviorLink(),
+                new UnlockCommunityCenterBehaviorLink(),
+                new EndCommunityCenterBehaviorLink(),
                 new TransitionSleepBehaviorLink(),
                 new TransitionFestivalAttendanceBehaviorLink(),
                 new TransitionFestivalEndBehaviorLink(),
