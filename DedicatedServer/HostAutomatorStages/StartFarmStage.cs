@@ -24,14 +24,17 @@ namespace DedicatedServer.HostAutomatorStages
         private AutomatedHost automatedHost = null;
         private BuildCommandListener buildCommandListener = null;
         private DemolishCommandListener demolishCommandListener = null;
+        private PauseCommandListener pauseCommandListener = null;
 
         public StartFarmStage(IModHelper helper, IMonitor monitor, ModConfig config) : base(helper)
         {
             this.monitor = monitor;
             this.config = config;
             helper.Events.GameLoop.SaveLoaded += onSaveLoaded;
-            cropSaver = new CropSaver(helper, monitor, config);
-            cropSaver.Enable();
+            if (config.EnableCropSaver) {
+                cropSaver = new CropSaver(helper, monitor, config);
+                cropSaver.Enable();
+            }
             helper.Events.GameLoop.DayStarted += ReadyCheckHelper.OnDayStarted;
             helper.Events.GameLoop.ReturnedToTitle += onReturnToTitle;
         }
@@ -318,6 +321,10 @@ namespace DedicatedServer.HostAutomatorStages
             // unclaimed invisible cabin at all times (every time one is claimed by a joining player,
             // create a new one). This would require a lot of work, and the mailbox part might
             // be totally impossible.
+
+            //We set bot mining lvl to 10 so he doesn't lvlup passively
+            Game1.player.MiningLevel = 10;
+
             automatedHost = new AutomatedHost(helper, monitor, config, chatBox);
             automatedHost.Enable();
 
@@ -325,6 +332,8 @@ namespace DedicatedServer.HostAutomatorStages
             buildCommandListener.Enable();
             demolishCommandListener = new DemolishCommandListener(chatBox);
             demolishCommandListener.Enable();
+            pauseCommandListener = new PauseCommandListener(chatBox);
+            pauseCommandListener.Enable();
         }
 
         private void onReturnToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -335,6 +344,8 @@ namespace DedicatedServer.HostAutomatorStages
             buildCommandListener = null;
             demolishCommandListener?.Disable();
             demolishCommandListener = null;
+            pauseCommandListener?.Disable();
+            pauseCommandListener = null;
         }
     }
 }

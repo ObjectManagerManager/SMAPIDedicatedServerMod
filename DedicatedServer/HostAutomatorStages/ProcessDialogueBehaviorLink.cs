@@ -105,6 +105,17 @@ namespace DedicatedServer.HostAutomatorStages
                         state.SkipDialogue();
                     }
                 }
+                else if (Game1.activeClickableMenu is LevelUpMenu lum) 
+                {
+                    if (state.HasBetweenDialoguesWaitTicks())
+                    {
+                        state.DecrementBetweenDialoguesWaitTicks();
+                    }
+                    else
+                    {
+                        lum.okButtonClicked();
+                    }
+                }
                 else
                 {
                     state.ClearBetweenDialoguesWaitTicks();

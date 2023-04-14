@@ -47,7 +47,7 @@ namespace DedicatedServer.HostAutomatorStages
         }
         public void SkipEvent()
         {
-            betweenEventsWaitTicks = (int)(60 * 0.2);
+            betweenEventsWaitTicks = (int)(600 * 0.2);
         }
         public void ClearBetweenEventsWaitTicks()
         {

@@ -46,5 +46,8 @@ namespace DedicatedServer.Config
 
         // Options are "Mushrooms" or "Bats" (case-insensitive)
         public string MushroomsOrBats { get; set; } = "Mushrooms";
+
+        // Enables the crop saver
+        public bool EnableCropSaver = true;
     }
 }
