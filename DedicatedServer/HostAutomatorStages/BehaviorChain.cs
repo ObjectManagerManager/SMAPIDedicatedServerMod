@@ -26,9 +26,13 @@ namespace DedicatedServer.HostAutomatorStages
             // 6. Skip shipping menu
             // 7. If in farmhouse and haven't checked for parsnip seeds, check for parsnip seeds
             // 8. If in farmhouse and haven't left farmhouse for the day, leave farmhouse
-            // 9. If our sleep state should be switched, then switch it
-            // 10. If our state of festival attendance should be switched, then switch it
-            // 11. If our leave festival state should be switched, then switch it
+            // 9. If we don't have the fishing rod yet, and it's available, get it.
+            // 10. If we haven't unlocked the community center yet, and we can, then unlock it.
+            // 12. If we haven't watched the end cutscene for the community scenter yet, and we can, then watch it.
+            // 13. If our sleep state should be switched, then switch it
+            // 14. If our state of festival attendance should be switched, then switch it
+            // 15. If our leave festival state should be switched, then switch it
+            // 16. If we're at a festival and we need to watch the festival chatbox, then watch it
 
             var chain = new BehaviorLink[] {
                 new UpdateStateBehaviorLink(),

@@ -22,7 +22,10 @@ namespace DedicatedServer.HostAutomatorStages
                 Game1.warpFarmer("Farm", 64, 10, 1);
                 isEnding = false;
             }
-            processNext(state);
+            else
+            {
+                processNext(state);
+            }
         }
     }
 }
