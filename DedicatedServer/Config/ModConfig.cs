@@ -49,5 +49,9 @@ namespace DedicatedServer.Config
 
         // Enables the crop saver
         public bool EnableCropSaver = true;
+
+        // Configures the automated host to purchase a Joja membership once available,
+        // committing to the Joja route and removing the community center.
+        public bool PurchaseJojaMembership = false;
     }
 }

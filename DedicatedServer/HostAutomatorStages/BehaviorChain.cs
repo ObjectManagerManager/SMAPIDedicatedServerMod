@@ -45,6 +45,7 @@ namespace DedicatedServer.HostAutomatorStages
                 new ExitFarmHouseBehaviorLink(),
                 new GetFishingRodBehaviorLink(),
                 new UnlockCommunityCenterBehaviorLink(),
+                new PurchaseJojaMembershipBehaviorLink(config),
                 new EndCommunityCenterBehaviorLink(),
                 new TransitionSleepBehaviorLink(),
                 new TransitionFestivalAttendanceBehaviorLink(),
