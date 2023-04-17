@@ -57,6 +57,7 @@ namespace DedicatedServer.Crops
             public List<string> OriginalSeasonsToGrowIn { get; set; }
             public bool HasExistedInIncompatibleSeason { get; set; }
             public int OriginalRegrowAfterHarvest { get; set; }
+            public bool HarvestableLastNight { get; set; }
         }
 
         public CropSaver(IModHelper helper, IMonitor monitor, ModConfig config)
@@ -285,15 +286,10 @@ namespace DedicatedServer.Crops
                                         MarkedForDeath = false,
                                         OriginalSeasonsToGrowIn = crop.seasonsToGrowIn.ToList(),
                                         HasExistedInIncompatibleSeason = false,
-                                        OriginalRegrowAfterHarvest = crop.regrowAfterHarvest.Value
+                                        OriginalRegrowAfterHarvest = crop.regrowAfterHarvest.Value,
+                                        HarvestableLastNight = false
                                     };
                                     cropDictionary[cropLocation] = cd;
-
-                                    monitor.Log("Original seasons: ", LogLevel.Debug);
-                                    foreach (var season in cd.OriginalSeasonsToGrowIn)
-                                    {
-                                        monitor.Log(season, LogLevel.Debug);
-                                    }
 
                                     // Make sure that the crop is set to survive in all seasons, so that it
                                     // only dies if it's harvested for the last time or manually killed after being
@@ -314,14 +310,24 @@ namespace DedicatedServer.Crops
                                     {
                                         crop.seasonsToGrowIn.Add("winter");
                                     }
+                                }
 
-                                    monitor.Log("Original seasons: ", LogLevel.Debug);
-                                    foreach (var season in cd.OriginalSeasonsToGrowIn)
+                                // If there's a crop in the dictionary at this location (just planted today or otherwise),
+                                // record whether it's harvestable tonight. This is used to help determine whether the crop
+                                // should be marked for death the next morning. A crop is harvestable if and only if it's
+                                // in the last phase, AND it's either a) NOT marked as "fully grown" (i.e., it hasn't been harvested
+                                // at least once), or b) has a non-positive current day of phase (after harvest and regrowth,
+                                // the current day of phase is set to positive and then works downward; 0 means ready-for-reharvest).
+                                if (cropDictionary.TryGetValue(cropLocation, out var cropData))
+                                {
+                                    if ((crop.phaseDays.Count > 0 && crop.currentPhase.Value < crop.phaseDays.Count - 1) || (crop.dayOfCurrentPhase.Value > 0 && crop.fullyGrown.Value))
                                     {
-                                        monitor.Log(season, LogLevel.Debug);
+                                        cropData.HarvestableLastNight = false;
+                                    } else
+                                    {
+                                        cropData.HarvestableLastNight = true;
                                     }
-
-                                    monitor.Log($"Found newly planted crop: {location.NameOrUniqueName} | {tileLocation.X}, {tileLocation.Y} | {crop.phaseDays.Count - 1} | {crop.currentPhase.Value} | {crop.phaseDays[crop.phaseDays.Count - 1] - 1} | {crop.dayOfCurrentPhase.Value}", LogLevel.Debug);
+                                    cropDictionary[cropLocation] = cropData;
                                 }
                             }
                         }
@@ -415,37 +421,21 @@ namespace DedicatedServer.Crops
 
                                 // Check if it's currently a season which is incompatible with the
                                 // crop's ORIGINAL compatible seasons. If so, update the crop data to
-                                // reflect this. Additionally, if it's out-of-season and the crop is still
-                                // growing, then it should be marked for death;
-                                // crops planted too late to fully grow before the turn of the season should
-                                // not be saved.
+                                // reflect this.
                                 if (!cropData.OriginalSeasonsToGrowIn.Contains(location.GetSeasonForLocation()))
                                 {
                                     cropData.HasExistedInIncompatibleSeason = true;
-                                    // A crop is still "growing" if it's still in the final phase, OR its day of current phase
-                                    // is positive after being "fully grown". When a crop gets to the final phase and is harvested once,
-                                    // it is considered to be "fully grown". Its day of current phase is then reset to its regrowAfterHarvest, and
-                                    // then it works downward from there. If the crop regrows on harvest, then when it's harvested,
-                                    // its phase remains the same but its day of current phase increases to the set, positive value.
-                                    // It then proceeds to decrement from there until it reaches 0 again, at which point it's harvestable
-                                    // again. In other words, if this condition is satisfied, then either the crop isn't yet fully grown,
-                                    // or it is fully grown but it's not currently harvestable (and has been harvested at least once
-                                    // before). In either case, we should mark it for death.
-                                    if ((crop.phaseDays.Count > 0 && crop.currentPhase.Value < crop.phaseDays.Count - 1) || (crop.dayOfCurrentPhase.Value > 0 && crop.fullyGrown.Value))
-                                    {
-                                        cropData.MarkedForDeath = true;
-                                    }
                                 }
 
-                                // Next, update the crop's growth stage in the CropData.
-                                var cropGrowthStage = new CropGrowthStage
+                                // Check if the crop has been out of season, AND it was not harvestable last night.
+                                // If so, mark it for death. This covers the edge case of when a crop finishes
+                                // growing on the first day in which it's out-of-season (it should be marked for
+                                // death, in this case).
+
+                                if (cropData.HasExistedInIncompatibleSeason && !cropData.HarvestableLastNight)
                                 {
-                                    CurrentPhase = crop.currentPhase.Value,
-                                    DayOfCurrentPhase = crop.dayOfCurrentPhase.Value,
-                                    FullyGrown = crop.fullyGrown.Value,
-                                    PhaseDays = crop.phaseDays.ToList(),
-                                    OriginalRegrowAfterHarvest = cropData.OriginalRegrowAfterHarvest
-                                };
+                                    cropData.MarkedForDeath = true;
+                                }
 
                                 // Now we have to update the crop itself. If it's existed out-of-season,
                                 // then its regrowAfterHarvest value should be set to -1, so that the
@@ -462,9 +452,20 @@ namespace DedicatedServer.Crops
                                     crop.Kill();
                                 }
 
+                                // Update the crop data in the crop dictionary
+                                cropDictionary[cropLocation] = cropData;
+
                                 // Lastly, now that the crop has been updated, construct the comparison data for later
                                 // so that we can check if this has been replaced by a newly planted crop in the evening.
 
+                                var cropGrowthStage = new CropGrowthStage
+                                {
+                                    CurrentPhase = crop.currentPhase.Value,
+                                    DayOfCurrentPhase = crop.dayOfCurrentPhase.Value,
+                                    FullyGrown = crop.fullyGrown.Value,
+                                    PhaseDays = crop.phaseDays.ToList(),
+                                    OriginalRegrowAfterHarvest = cropData.OriginalRegrowAfterHarvest
+                                };
                                 cropComparisonData = new CropComparisonData
                                 {
                                     CropGrowthStage = cropGrowthStage,
