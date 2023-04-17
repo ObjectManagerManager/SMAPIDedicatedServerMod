@@ -32,4 +32,4 @@ After running SMAPI with the mod installed for the first time, a file called "co
 
 ### Other options
 
-- EnableCropSaver: true or false, specifying whether the crop saver should be enabled. When enabled, all seasonal crops that are planted by players and fully grown before the turn of the season are guaranteed to give at least one more harvest before dying. For instance, a spring crop planted by a player and fully grown before Summer 1 will not die immediately on Summer 1. Instead, it'll give exactly one more harvest, even if it's a crop that ordinarily produces multiple harvests.
+- EnableCropSaver: true or false, specifying whether the crop saver should be enabled. When enabled, all seasonal crops that are planted by players and fully grown before the turn of the season are guaranteed to give at least one more harvest before dying. For instance, a spring crop planted by a player and fully grown before Summer 1 will not die immediately on Summer 1. Instead, it'll give exactly one more harvest, even if it's a crop that ordinarily produces multiple harvests. Defaults to true.
