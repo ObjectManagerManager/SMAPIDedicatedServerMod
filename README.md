@@ -23,8 +23,13 @@ After running SMAPI with the mod installed for the first time, a file called "co
 
 ### Host automation options
 
-- AcceptPet: True or false, specifying whether or not the farm pet should be accepted.
+- AcceptPet: true or false, specifying whether or not the farm pet should be accepted.
 - PetSpecies: Specifies the desired pet species. Must be either "dog" or "cat". This value is irrelevant if AcceptPet is false.
 - PetBreed: An integer in {0, 1, 2} specifying the pet breed index. 0 selects the leftmost breed within the pet selection menu during farm creation; 1 selects the middle breed; and 2 selects the rightmost breed. This value is irrelevant if AcceptPet is false.
 - PetName: The desired name of the pet. This value is irrelevant if AcceptPet is false.
 - MushroomsOrBats: Specifies whether the mushroom or bat cave should be selected. Must be either "mushrooms" or "bats" (case insensitive).
+- PurchaseJojaMembership: true or false, specifying whether the automated host should "purchase" (acquire for free) a Joja membership once available, committing to the Joja route. Defaults to false.
+
+### Other options
+
+- EnableCropSaver: true or false, specifying whether the crop saver should be enabled. When enabled, all seasonal crops that are planted by players and fully grown before the turn of the season are guaranteed to give at least one more harvest before dying. For instance, a spring crop planted by a player and fully grown before Summer 1 will not die immediately on Summer 1. Instead, it'll give exactly one more harvest, even if it's a crop that ordinarily produces multiple harvests.
