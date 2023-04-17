@@ -7,7 +7,7 @@ Upon running SMAPI with the mod installed for the first time, a `config.json` fi
 ### Startup options
 
 - `FarmName`: The name of the farm. If a farm with this name exists, it will automatically be loaded and hosted for co-op. Otherwise, a new farm will be created using the specified farm creation options and then hosted for co-op.
-- 
+
 ### Farm Creation Options
 
 - `StartingCabins`: The number of starting cabins for the farm. Must be an integer in {0, 1, 2, 3}.
