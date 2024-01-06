@@ -53,5 +53,12 @@ namespace DedicatedServer.Config
         // Configures the automated host to purchase a Joja membership once available,
         // committing to the Joja route and removing the community center.
         public bool PurchaseJojaMembership = false;
+
+        // Changes farmhands permissions to move buildings from the Carpenter's Shop.
+        // Is set each time the server is started and can be changed in the game.
+        // "off" to entirely disable moving buildings.
+        // "owned" to allow farmhands to move buildings that they purchased.
+        // "on" to allow moving all buildings.
+        public string MoveBuildPermission { get; set; } = "off";
     }
 }

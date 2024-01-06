@@ -25,6 +25,7 @@ namespace DedicatedServer.HostAutomatorStages
         private BuildCommandListener buildCommandListener = null;
         private DemolishCommandListener demolishCommandListener = null;
         private PauseCommandListener pauseCommandListener = null;
+        private ServerCommandListener serverCommandListener = null;
 
         public StartFarmStage(IModHelper helper, IMonitor monitor, ModConfig config) : base(helper)
         {
@@ -322,6 +323,10 @@ namespace DedicatedServer.HostAutomatorStages
             // create a new one). This would require a lot of work, and the mailbox part might
             // be totally impossible.
 
+            // The command movebuildpermission is a standard command.
+            // The server must be started, the value is set accordingly after each start
+            chatBox.textBoxEnter("/mbp " + config.MoveBuildPermission);
+
             //We set bot mining lvl to 10 so he doesn't lvlup passively
             Game1.player.MiningLevel = 10;
 
@@ -334,6 +339,8 @@ namespace DedicatedServer.HostAutomatorStages
             demolishCommandListener.Enable();
             pauseCommandListener = new PauseCommandListener(chatBox);
             pauseCommandListener.Enable();
+            serverCommandListener = new ServerCommandListener(helper, config, chatBox);
+            serverCommandListener.Enable();
         }
 
         private void onReturnToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -346,6 +353,8 @@ namespace DedicatedServer.HostAutomatorStages
             demolishCommandListener = null;
             pauseCommandListener?.Disable();
             pauseCommandListener = null;
+            serverCommandListener?.Disable();
+            serverCommandListener = null;
         }
     }
 }
