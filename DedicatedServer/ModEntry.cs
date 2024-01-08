@@ -36,7 +36,7 @@ namespace DedicatedServer
             this.config = helper.ReadConfig<ModConfig>();
 
             // ensure that the game environment is in a stable state before the mod starts executing
-            this.titleMenuWaitCondition = new WaitCondition(() => Game1.activeClickableMenu is TitleMenu, 5);
+            this.titleMenuWaitCondition = new WaitCondition(() => Game1.activeClickableMenu is StardewValley.Menus.TitleMenu, 5);
             helper.Events.GameLoop.UpdateTicked += WaitUntilConditionIsMet;
         }
 
