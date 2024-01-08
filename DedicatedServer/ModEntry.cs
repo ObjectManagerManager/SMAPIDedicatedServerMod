@@ -1,6 +1,7 @@
 ﻿using DedicatedServer.Config;
 using DedicatedServer.HostAutomatorStages;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace DedicatedServer
@@ -22,6 +23,10 @@ namespace DedicatedServer
         
         // TODO Consider what the automated host should do when another player proposes to them.
 
+        private WaitCondition titleMenuWaitCondition;
+        private ModConfig config;
+        private bool farmStageEnabled;
+
         /*********
         ** Public methods
         *********/
@@ -29,13 +34,55 @@ namespace DedicatedServer
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
-            var config = helper.ReadConfig<ModConfig>();
-            new StartFarmStage(helper, Monitor, config).Enable();
-            helper.Events.GameLoop.UpdateTicked += PrintDebug;
+            this.config = helper.ReadConfig<ModConfig>();
+
+            // ensure that the game environment is in a stable state before the mod starts executing
+            this.titleMenuWaitCondition = new WaitCondition(() => Game1.activeClickableMenu is StardewValley.Menus.TitleMenu, 5);
+            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
         }
 
-        private void PrintDebug(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
+        /// <summary>
+        /// Event handler to wait until a specific condition is met before executing.
+        /// </summary>
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
+            if (!this.farmStageEnabled && this.titleMenuWaitCondition.IsMet())
+            {
+                this.farmStageEnabled = true; // Set the flag to true once the condition is met.
+                new StartFarmStage(this.Helper, Monitor, config).Enable();
+            }
+            // makes the host stamina and health infinite
+            if (Context.IsWorldReady) 
+            {
+                Game1.player.health = Game1.player.maxHealth;
+                Game1.player.stamina = Game1.player.maxStamina;
+            }
+        }
+
+        /// <summary>
+        /// Represents wait condition.
+        /// </summary>
+        private class WaitCondition
+        {
+            private readonly System.Func<bool> condition;
+            private int waitCounter;
+
+            public WaitCondition(System.Func<bool> condition, int initialWait)
+            {
+                this.condition = condition;
+                this.waitCounter = initialWait;
+            }
+
+            public bool IsMet()
+            {
+                if (this.waitCounter <= 0 && this.condition())
+                {
+                    return true;
+                }
+
+                this.waitCounter--;
+                return false;
+            }
         }
     }
 }
