@@ -25,6 +25,7 @@ namespace DedicatedServer
 
         private WaitCondition titleMenuWaitCondition;
         private ModConfig config;
+        private bool farmStageEnabled;
 
         /*********
         ** Public methods
@@ -37,18 +38,24 @@ namespace DedicatedServer
 
             // ensure that the game environment is in a stable state before the mod starts executing
             this.titleMenuWaitCondition = new WaitCondition(() => Game1.activeClickableMenu is StardewValley.Menus.TitleMenu, 5);
-            helper.Events.GameLoop.UpdateTicked += WaitUntilConditionIsMet;
+            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
         }
 
         /// <summary>
         /// Event handler to wait until a specific condition is met before executing.
         /// </summary>
-        private void WaitUntilConditionIsMet(object sender, UpdateTickedEventArgs e)
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            if (this.titleMenuWaitCondition.IsMet())
+            if (!this.farmStageEnabled && this.titleMenuWaitCondition.IsMet())
             {
-                this.Helper.Events.GameLoop.UpdateTicked -= WaitUntilConditionIsMet;
+                this.farmStageEnabled = true; // Set the flag to true once the condition is met.
                 new StartFarmStage(this.Helper, Monitor, config).Enable();
+            }
+            // makes the host stamina and health infinite
+            if (Context.IsWorldReady) 
+            {
+                Game1.player.health = Game1.player.maxHealth;
+                Game1.player.stamina = Game1.player.maxStamina;
             }
         }
 
