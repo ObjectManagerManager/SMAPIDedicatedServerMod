@@ -47,9 +47,18 @@ namespace DedicatedServer.MessageCommands
             var moveBuildPermissionCommand = new List<string>() { "mbp", "movebuildpermission", "movepermissiong" };
            
             if( (ChatBox.privateMessage == e.ChatKind               ) &&
-                (moveBuildPermissionCommand.Any(tokens[0].Contains) ) )
+                (moveBuildPermissionCommand.Any(tokens[0].Equals) ) )
             {
-                string newBuildPermission = tokens[1].ToLower();
+                string newBuildPermission;
+
+                if (2 == tokens.Length)
+                {
+                    newBuildPermission = tokens[1].ToLower();
+                }
+                else
+                {
+                    newBuildPermission = "";
+                }
 
                 var sourceFarmer = Game1.otherFarmers.Values
                     .Where( farmer => farmer.UniqueMultiplayerID == e.SourceFarmerId)
@@ -58,7 +67,7 @@ namespace DedicatedServer.MessageCommands
 
                 var moveBuildPermissionParameter = new List<string>() { "off", "owned", "on" };
 
-                if (moveBuildPermissionParameter.Any(newBuildPermission.Contains))
+                if (moveBuildPermissionParameter.Any(newBuildPermission.Equals))
                 {
                     if (config.MoveBuildPermission == newBuildPermission)
                     {
