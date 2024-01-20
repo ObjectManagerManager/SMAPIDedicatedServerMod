@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DedicatedServer.Utils
 {
-    internal class Invincible : InvincibleWorker
+    internal abstract class Invincible : InvincibleWorker
     {
         private Invincible() : base(null)
         {
