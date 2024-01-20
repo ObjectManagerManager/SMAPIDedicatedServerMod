@@ -22,6 +22,7 @@ namespace DedicatedServer.HostAutomatorStages
         private ModConfig config;
         private CropSaver cropSaver = null;
         private AutomatedHost automatedHost = null;
+        private InvincibleWorker invincibleWorker = null;
         private BuildCommandListener buildCommandListener = null;
         private DemolishCommandListener demolishCommandListener = null;
         private PauseCommandListener pauseCommandListener = null;
@@ -332,6 +333,8 @@ namespace DedicatedServer.HostAutomatorStages
 
             automatedHost = new AutomatedHost(helper, monitor, config, chatBox);
             automatedHost.Enable();
+            invincibleWorker = new InvincibleWorker(helper);
+            invincibleWorker.Enable();
 
             buildCommandListener = new BuildCommandListener(chatBox);
             buildCommandListener.Enable();
@@ -347,6 +350,9 @@ namespace DedicatedServer.HostAutomatorStages
         {
             automatedHost?.Disable();
             automatedHost = null;
+            invincibleWorker?.Disable();
+            invincibleWorker = null;
+
             buildCommandListener?.Disable();
             buildCommandListener = null;
             demolishCommandListener?.Disable();
