@@ -1,6 +1,8 @@
 ﻿using DedicatedServer.Chat;
 using DedicatedServer.Config;
+using DedicatedServer.Utils;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
@@ -34,58 +36,195 @@ namespace DedicatedServer.MessageCommands
             chatBox.ChatReceived -= chatReceived;
         }
 
+        private void AddOnSaved(EventHandler<SavedEventArgs> handler)
+        {
+            helper.Events.GameLoop.Saved += handler;
+        }
+
+        private void RemoveOnSaved(EventHandler<SavedEventArgs> handler)
+        {
+            helper.Events.GameLoop.Saved -= handler;
+        }
+
+        private void AddOnOneSecondUpdateTicked(EventHandler<OneSecondUpdateTickedEventArgs> handler)
+        {
+            helper.Events.GameLoop.OneSecondUpdateTicked += handler;
+        }
+
+        private void RemoveOnOneSecondUpdateTicked(EventHandler<OneSecondUpdateTickedEventArgs> handler)
+        {
+            helper.Events.GameLoop.OneSecondUpdateTicked -= handler;
+        }
+
         private void chatReceived(object sender, ChatEventArgs e)
         {
             var tokens = e.Message.Split(' ');
 
-            if (tokens.Length == 0) { return; }
+            if (0 == tokens.Length) { return; }
+            if (ChatBox.privateMessage != e.ChatKind ) { return; }
 
-            tokens[0] = tokens[0].ToLower();
+            string command = tokens[0].ToLower();
 
-            // As the host you can run commands in the chat box, using a forward slash(/) before the command.
-            // See: <seealso href="https://stardewcommunitywiki.com/Multiplayer"/>
-            var moveBuildPermissionCommand = new List<string>() { "mbp", "movebuildpermission", "movepermissiong" };
-           
-            if( (ChatBox.privateMessage == e.ChatKind               ) &&
-                (moveBuildPermissionCommand.Any(tokens[0].Equals) ) )
+            string param = 1 < tokens.Length ? tokens[1].ToLower() : "";
+
+            var sourceFarmer = Game1.otherFarmers.Values
+                .Where(farmer => farmer.UniqueMultiplayerID == e.SourceFarmerId)
+                .FirstOrDefault()?
+                .Name ?? Game1.player.Name;
+
+            switch (command)
             {
-                string newBuildPermission;
+                case "resetday": // /message ServerBot resetday
+                    SavesGameRestartsDay(
+                        time: 10,
+                        keepsCurrentDay: true,
+                        quit: false, 
+                        action: (seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds"));
+                    break;
 
-                if (2 == tokens.Length)
-                {
-                    newBuildPermission = tokens[1].ToLower();
-                }
-                else
-                {
-                    newBuildPermission = "";
-                }
+                case "shutdown": // /message ServerBot shutdown
+                    SavesGameRestartsDay(
+                        time: 10,
+                        keepsCurrentDay: false,
+                        quit: true,
+                        action: (seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds"));
+                    break;
 
-                var sourceFarmer = Game1.otherFarmers.Values
-                    .Where( farmer => farmer.UniqueMultiplayerID == e.SourceFarmerId)
-                    .FirstOrDefault()?
-                    .Name ?? Game1.player.Name;
+                case "mbp":
+                case "movebuildpermission":
+                case "movepermissiong":
+                    // As the host you can run commands in the chat box, using a forward slash(/) before the command.
+                    // See: <seealso href="https://stardewcommunitywiki.com/Multiplayer"/>
 
-                var moveBuildPermissionParameter = new List<string>() { "off", "owned", "on" };
+                    var moveBuildPermissionParameter = new List<string>() { "off", "owned", "on" };
 
-                if (moveBuildPermissionParameter.Any(newBuildPermission.Equals))
-                {
-                    if (config.MoveBuildPermission == newBuildPermission)
+                    if (moveBuildPermissionParameter.Any(param.Equals))
                     {
-                        chatBox.textBoxEnter("/message " + sourceFarmer + " Error: The parameter is already " + config.MoveBuildPermission);
+                        if (config.MoveBuildPermission == param)
+                        {
+                            chatBox.textBoxEnter("/message " + sourceFarmer + " Error: The parameter is already " + config.MoveBuildPermission);
+                        }
+                        else
+                        {
+                            config.MoveBuildPermission = param;
+                            chatBox.textBoxEnter(sourceFarmer + " Changed MoveBuildPermission to " + config.MoveBuildPermission);
+                            chatBox.textBoxEnter("/mbp " + config.MoveBuildPermission);
+                            helper.WriteConfig(config);
+                        }
                     }
                     else
                     {
-                        config.MoveBuildPermission = newBuildPermission;
-                        chatBox.textBoxEnter(sourceFarmer + " Changed MoveBuildPermission to " + config.MoveBuildPermission);
-                        chatBox.textBoxEnter("/mbp " + config.MoveBuildPermission);
-                        helper.WriteConfig(config);
+                        chatBox.textBoxEnter("/message " + sourceFarmer + " Error: Only the following parameter are valid: " + String.Join(", ", moveBuildPermissionParameter.ToArray()));
                     }
-                }
-                else
-                {
-                    chatBox.textBoxEnter("/message " + sourceFarmer + " Error: Only the following parameter are valid: " + String.Join(", ", moveBuildPermissionParameter.ToArray()));
-                }
+
+                    break;
+                default:
+                    break;
             }
         }
+
+        #region RESET_DAY
+
+        private int time;
+        private bool keepsCurrentDay;
+        private bool quit;
+        private Action<int> action;
+
+        /// <summary>
+        ///         Saves the game and resets the day
+        /// <br/>
+        /// <br/>   1. Prevents the pausing of the dedicated server.
+        /// <br/>   2. Conditional: Retains the current day.
+        /// <br/>   3. Kicks out all online players.
+        /// <br/>   4. Saves the game.
+        /// <br/>   5. Resets the normal pause behavior of the dedicated server.
+        /// <br/>   6. Conditional: Quit the game.
+        /// </summary>
+        /// <param name="time">Wait time in seconds</param>
+        /// <param name="keepsCurrentDay">
+        /// <br/>   true : The day counter retains the current day.
+        /// <br/>   false: The day counter is incremented. </param>
+        /// <param name="quit">
+        /// <br/>   true : After saving the game the game is quit
+        /// <br/>   false: The game will be continued </param>
+        /// <param name="action">
+        ///         Function that is executed every second until the
+        /// <br/>   event is executed. The parameter is the remaining time. </param>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="keepsCurrentDay"></param>
+        /// <param name="quit"></param>
+        private void SavesGameRestartsDay(int time = 0, bool keepsCurrentDay = true, bool quit = false, Action<int> action = null)
+        {
+            HostAutomation.PreventPause = true;
+
+            if(0 < this.time)
+            {
+                this.time = time;
+                return;
+            }
+
+            this.time = time;
+            this.keepsCurrentDay = keepsCurrentDay;
+            this.quit = quit;
+            this.action = action;
+
+            AddOnOneSecondUpdateTicked(magic);
+
+        }
+
+        private void magic(object sender, OneSecondUpdateTickedEventArgs e)
+        {
+            if(0 < time)
+            {
+                time--;
+                action?.Invoke(time);
+                return;
+            }
+
+            RemoveOnOneSecondUpdateTicked(magic);
+
+            if (keepsCurrentDay)
+            {
+                if (Game1.dayOfMonth > 1)
+                {
+                    Game1.stats.DaysPlayed--;
+                    Game1.dayOfMonth--;
+                }
+            }
+
+            foreach (var farmer in Game1.otherFarmers.Values)
+            {
+                Game1.server.kick(farmer.UniqueMultiplayerID);
+            }
+
+            Game1.player.isInBed.Value = true;
+            Game1.currentLocation.answerDialogueAction("Sleep_Yes", null);
+
+            AddOnSaved(OnSavedActivateHostAutomation);
+
+            if (quit)
+            {
+                AddOnSaved(OnSavedQuit);
+            }
+
+        }
+
+        private void OnSavedQuit(object sender, SavedEventArgs e)
+        {
+            RemoveOnSaved(OnSavedQuit);
+
+            Game1.quit = true;
+        }
+
+        public void OnSavedActivateHostAutomation(object sender, SavedEventArgs e)
+        {
+            RemoveOnSaved(OnSavedActivateHostAutomation);
+
+            HostAutomation.PreventPause = false;
+        }
+
+        #endregion
     }
 }
