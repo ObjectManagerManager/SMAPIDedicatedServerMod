@@ -51,12 +51,6 @@ namespace DedicatedServer
                 this.farmStageEnabled = true; // Set the flag to true once the condition is met.
                 new StartFarmStage(this.Helper, Monitor, config).Enable();
             }
-            // makes the host stamina and health infinite
-            if (Context.IsWorldReady) 
-            {
-                Game1.player.health = Game1.player.maxHealth;
-                Game1.player.stamina = Game1.player.maxStamina;
-            }
         }
 
         /// <summary>
