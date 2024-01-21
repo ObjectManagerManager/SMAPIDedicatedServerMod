@@ -37,7 +37,9 @@ namespace DedicatedServer
             this.helper = helper;
             this.config = helper.ReadConfig<ModConfig>();
 
-            // ensure that the game environment is in a stable state before the mod starts executing
+            // Ensure that the game environment is in a stable state before the mod starts executing
+            // Without a waiting time, an invitation code is almost never generated; with a waiting
+            // time of 1 second, it is very rare that no more codes are generated
             this.titleMenuWaitCondition = new WaitCondition(
                 () => Game1.activeClickableMenu is StardewValley.Menus.TitleMenu,
                 60);

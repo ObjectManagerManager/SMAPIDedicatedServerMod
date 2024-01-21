@@ -7,6 +7,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace DedicatedServer.MessageCommands
@@ -61,9 +62,33 @@ namespace DedicatedServer.MessageCommands
             var tokens = e.Message.Split(' ');
 
             if (0 == tokens.Length) { return; }
-            if (ChatBox.privateMessage != e.ChatKind ) { return; }
 
             string command = tokens[0].ToLower();
+
+            if(Game1.player.UniqueMultiplayerID == e.SourceFarmerId)
+            {
+                switch (command)
+                {
+                    case "haon":
+                        HostAutomation.EnableHostAutomation = true;
+                        break;
+                    case "haoff":
+                        HostAutomation.EnableHostAutomation = false;
+                        break;
+                    case "ppon":
+                        HostAutomation.PreventPause = true;
+                        break;
+                    case "ppoff":
+                        HostAutomation.PreventPause = false;
+                        break;
+
+                    #region DEBUG_COMMANDS
+
+                    #endregion
+                }
+            }            
+
+            if (ChatBox.privateMessage != e.ChatKind ) { return; }
 
             string param = 1 < tokens.Length ? tokens[1].ToLower() : "";
 
@@ -74,7 +99,31 @@ namespace DedicatedServer.MessageCommands
 
             switch (command)
             {
-                case "resetday": // /message ServerBot resetday
+                case "multiplayer": // /message ServerBot MultiPlayer
+                    MultiplayerOptions.EnableServer = true;
+                    break;
+
+                case "singleplayer": // /message ServerBot SinglePlayer
+                    MultiplayerOptions.EnableServer = false;
+                    break;
+
+                case "safeinvitecode": // /message ServerBot SafeInviteCode
+                    MultiplayerOptions.SaveInviteCode();
+                    if (MultiplayerOptions.IsInviteCodeAvailable)
+                    {
+                        chatBox.textBoxEnter($"Your invite code is saved in the mod folder in the file {MultiplayerOptions.inviteCodeSaveFile}.");
+                    }
+                    else
+                    {
+                        chatBox.textBoxEnter($"The game has no invite code.");
+                    }
+                    break;
+
+                case "invitecode": // /message ServerBot InviteCode
+                    chatBox.textBoxEnter($"Invite code: {MultiplayerOptions.InviteCode}");
+                    break;
+
+                case "resetday": // /message ServerBot ResetDay
                     SavesGameRestartsDay(
                         time: 10,
                         keepsCurrentDay: true,
@@ -82,7 +131,7 @@ namespace DedicatedServer.MessageCommands
                         action: (seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds"));
                     break;
 
-                case "shutdown": // /message ServerBot shutdown
+                case "shutdown": // /message ServerBot Shutdown
                     SavesGameRestartsDay(
                         time: 10,
                         keepsCurrentDay: false,
@@ -90,7 +139,7 @@ namespace DedicatedServer.MessageCommands
                         action: (seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds"));
                     break;
 
-                case "mbp":
+                case "mbp": // /message ServerBot mbp on
                 case "movebuildpermission":
                 case "movepermissiong":
                     // As the host you can run commands in the chat box, using a forward slash(/) before the command.
@@ -170,11 +219,11 @@ namespace DedicatedServer.MessageCommands
             this.quit = quit;
             this.action = action;
 
-            AddOnOneSecondUpdateTicked(magic);
+            AddOnOneSecondUpdateTicked(SavesGameRestartsDayWorker);
 
         }
 
-        private void magic(object sender, OneSecondUpdateTickedEventArgs e)
+        private void SavesGameRestartsDayWorker(object sender, OneSecondUpdateTickedEventArgs e)
         {
             if(0 < time)
             {
@@ -183,7 +232,7 @@ namespace DedicatedServer.MessageCommands
                 return;
             }
 
-            RemoveOnOneSecondUpdateTicked(magic);
+            RemoveOnOneSecondUpdateTicked(SavesGameRestartsDayWorker);
 
             if (keepsCurrentDay)
             {
