@@ -238,7 +238,7 @@ namespace DedicatedServer.Utils
         /// <returns>
         ///         true : if the handler has been started
         /// <br/>   false: the handler is already running and could not be started.</returns>
-        public static bool TryActivatingInviteCode()
+        public bool TryActivatingInviteCode()
         {
             if (0 < MultiplayerOptions.time) { return false; }
 

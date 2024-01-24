@@ -338,6 +338,7 @@ namespace DedicatedServer.HostAutomatorStages
             invincibleWorker = new InvincibleWorker(helper);
             invincibleWorker.Enable();
             multiplayerOptions = new MultiplayerOptions(helper, chatBox);
+            multiplayerOptions.TryActivatingInviteCode();
 
             buildCommandListener = new BuildCommandListener(chatBox);
             buildCommandListener.Enable();
