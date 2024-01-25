@@ -4,6 +4,7 @@ using DedicatedServer.Utils;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
@@ -69,26 +70,43 @@ namespace DedicatedServer.MessageCommands
             {
                 switch (command)
                 {
-                    case "haon":
-                        HostAutomation.EnableHostAutomation = true;
+                    case "letmeplay":
+                        HostAutomation.LetMePlay();
                         break;
-                    case "haoff":
-                        HostAutomation.EnableHostAutomation = false;
-                        break;
-                    case "ppon":
-                        HostAutomation.PreventPause = true;
-                        break;
-                    case "ppoff":
-                        HostAutomation.PreventPause = false;
+
+                    case "takeover":
+                        HostAutomation.TakeOver();
                         break;
 
                     #region DEBUG_COMMANDS
+                    #if false
 
+                    case "letmecontrol":
+                        HostAutomation.LetMeControl();
+                        break;
+
+                    case "mine":
+                        var mine = Game1.getLocationFromName("Mine") as Mine;
+                        var warp = new Warp(18, 13, mine.NameOrUniqueName, 18, 13, false);
+                        Game1.player.warpFarmer(warp);
+                        break;
+
+                    case "location":
+                        var location = Game1.player.getTileLocation();
+                        chatBox.textBoxEnter("x: " + location.X + ", y:" + location.Y);
+                        break;
+
+                    #endif
                     #endregion
                 }
-            }            
-
-            if (ChatBox.privateMessage != e.ChatKind ) { return; }
+            }
+            else
+            {
+                if (ChatBox.privateMessage != e.ChatKind)
+                {
+                    return;
+                }
+            }      
 
             string param = 1 < tokens.Length ? tokens[1].ToLower() : "";
 
@@ -121,6 +139,20 @@ namespace DedicatedServer.MessageCommands
 
                 case "invitecode": // /message ServerBot InviteCode
                     chatBox.textBoxEnter($"Invite code: {MultiplayerOptions.InviteCode}");
+                    break;
+
+                case "sleep": // /message ServerBot Sleep
+                    if (Sleeping.ShouldSleepOverwrite)
+                    {
+                        Sleeping.ShouldSleepOverwrite = false;
+                        chatBox.textBoxEnter($"The host is back on his feet.");
+                    }
+                    else
+                    {
+                        chatBox.textBoxEnter($"The host will go to sleep.");
+                        Sleeping.ShouldSleepOverwrite = true;
+                    }
+                    
                     break;
 
                 case "resetday": // /message ServerBot ResetDay
@@ -172,7 +204,7 @@ namespace DedicatedServer.MessageCommands
             }
         }
 
-        #region RESET_DAY
+#region RESET_DAY
 
         private int time;
         private bool keepsCurrentDay;
@@ -188,6 +220,9 @@ namespace DedicatedServer.MessageCommands
         /// <br/>   4. Saves the game.
         /// <br/>   5. Resets the normal pause behavior of the dedicated server.
         /// <br/>   6. Conditional: Quit the game.
+        /// <br/>   
+        /// <br/>   Attention:  If something is wrong with the host, if it is
+        /// <br/>               blocked in any way, then it will not work.
         /// </summary>
         /// <param name="time">Wait time in seconds</param>
         /// <param name="keepsCurrentDay">
@@ -206,9 +241,10 @@ namespace DedicatedServer.MessageCommands
         /// <param name="quit"></param>
         private void SavesGameRestartsDay(int time = 0, bool keepsCurrentDay = true, bool quit = false, Action<int> action = null)
         {
+            HostAutomation.EnableHostAutomation = true;
             HostAutomation.PreventPause = true;
 
-            if(0 < this.time)
+            if (0 < this.time)
             {
                 this.time = time;
                 return;
@@ -247,6 +283,8 @@ namespace DedicatedServer.MessageCommands
             {
                 Game1.server.kick(farmer.UniqueMultiplayerID);
             }
+                    
+            WarpToFarmHouse();
 
             Game1.player.isInBed.Value = true;
             Game1.currentLocation.answerDialogueAction("Sleep_Yes", null);
@@ -257,7 +295,14 @@ namespace DedicatedServer.MessageCommands
             {
                 AddOnSaved(OnSavedQuit);
             }
+        }
 
+        private void WarpToFarmHouse()
+        {
+            var farmHouse = Game1.getLocationFromName("FarmHouse") as FarmHouse;
+            var entryLocation = farmHouse.getEntryLocation();
+            var warp = new Warp(entryLocation.X, entryLocation.Y, farmHouse.NameOrUniqueName, entryLocation.X, entryLocation.Y, false);
+            Game1.player.warpFarmer(warp);
         }
 
         private void OnSavedQuit(object sender, SavedEventArgs e)
@@ -271,9 +316,9 @@ namespace DedicatedServer.MessageCommands
         {
             RemoveOnSaved(OnSavedActivateHostAutomation);
 
-            HostAutomation.PreventPause = false;
+            HostAutomation.TakeOver();
         }
 
-        #endregion
+#endregion
     }
 }
