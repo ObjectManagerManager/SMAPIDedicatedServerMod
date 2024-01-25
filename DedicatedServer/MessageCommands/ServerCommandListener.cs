@@ -65,6 +65,14 @@ namespace DedicatedServer.MessageCommands
                         HostAutomation.LetMeControl();
                         break;
 
+                    case "multiplayer":
+                        MultiplayerOptions.EnableServer = true;
+                        break;
+
+                    case "singleplayer":
+                        MultiplayerOptions.EnableServer = false;
+                        break;
+
                     case "mine":
                         var mine = Game1.getLocationFromName("Mine") as Mine;
                         var warp = new Warp(18, 13, mine.NameOrUniqueName, 18, 13, false);
@@ -97,14 +105,6 @@ namespace DedicatedServer.MessageCommands
 
             switch (command)
             {
-                case "multiplayer": // /message ServerBot MultiPlayer
-                    MultiplayerOptions.EnableServer = true;
-                    break;
-
-                case "singleplayer": // /message ServerBot SinglePlayer
-                    MultiplayerOptions.EnableServer = false;
-                    break;
-
                 case "safeinvitecode": // /message ServerBot SafeInviteCode
                     MultiplayerOptions.SaveInviteCode();
                     if (MultiplayerOptions.IsInviteCodeAvailable)
