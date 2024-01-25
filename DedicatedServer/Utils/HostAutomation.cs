@@ -44,6 +44,7 @@ namespace DedicatedServer.Utils
             EnableHostAutomation = false;
             PreventPause = true;
             Invincible.InvincibilityOverwrite = false;
+            Sleeping.ShouldSleepOverwrite = false;
         }
 
         /// <summary>
