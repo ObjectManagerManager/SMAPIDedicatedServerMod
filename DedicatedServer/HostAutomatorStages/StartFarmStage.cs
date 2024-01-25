@@ -25,6 +25,7 @@ namespace DedicatedServer.HostAutomatorStages
         private AutomatedHost automatedHost = null;
         private InvincibleWorker invincibleWorker = null;
         private SleepWorker sleepWorker = null;
+        private RestartDayWorker restartDayWorker = null;
         private BuildCommandListener buildCommandListener = null;
         private DemolishCommandListener demolishCommandListener = null;
         private PauseCommandListener pauseCommandListener = null;
@@ -339,6 +340,7 @@ namespace DedicatedServer.HostAutomatorStages
             invincibleWorker = new InvincibleWorker(helper);
             invincibleWorker.Enable();
             sleepWorker = new SleepWorker(helper);
+            restartDayWorker = new RestartDayWorker(helper);
             multiplayerOptions = new MultiplayerOptions(helper, chatBox);
             multiplayerOptions.TryActivatingInviteCode();
 
