@@ -1,4 +1,5 @@
 ﻿using DedicatedServer.Chat;
+using DedicatedServer.Config;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -64,6 +65,8 @@ namespace DedicatedServer.Utils
         
         private static IModHelper helper;
 
+        private static ModConfig config;
+
         private static EventDrivenChatBox chatBox;
 
         public const string inviteCodeSaveFile = "invite_code.txt";
@@ -72,25 +75,28 @@ namespace DedicatedServer.Utils
         /// Cclass requires helper of type <see cref="IModHelper"/>
         /// </summary>
         /// <param name="helper">The helper must be initialized.</param>
-        public MultiplayerOptions(IModHelper helper, EventDrivenChatBox chatBox)
+        public MultiplayerOptions(IModHelper helper, ModConfig config, EventDrivenChatBox chatBox)
         {
             MultiplayerOptions.helper = helper;
+            MultiplayerOptions.config = config;
             MultiplayerOptions.chatBox = chatBox;
 
             TryActivatingInviteCode();
         }
 
         /// <summary>
-        /// Checks whether the invitation code is available
+        ///         Checks whether the invitation code is available
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///         true : Invitation code is available
+        /// <br/>   false: Invitation code is not available</returns>
         public static bool IsInviteCodeAvailable
         {
             get { return Game1.server?.canOfferInvite() ?? false; }
         }
 
         /// <summary>
-        /// Reads the invitation code
+        ///         Reads the invitation code
         /// </summary>
         public static string InviteCode
         {
@@ -102,7 +108,7 @@ namespace DedicatedServer.Utils
         }
 
         /// <summary>
-        /// Saves your invitaion code in a file (<see cref="inviteCodeSaveFile"/>).
+        ///         Saves your invitaion code in a file (<see cref="inviteCodeSaveFile"/>).
         /// </summary>
         public static void SaveInviteCode()
         {
@@ -169,7 +175,7 @@ namespace DedicatedServer.Utils
         }
 
         /// <summary>
-        /// Changes the Server Mode option
+        ///         Changes the Server Mode option
         /// </summary>
         public static ServerModeTypes ServerMode {
             get
@@ -198,7 +204,7 @@ namespace DedicatedServer.Utils
         }
 
         /// <summary>
-        /// Kicks all online players
+        ///         Kicks all online players
         /// </summary>
         public static void KickAll()
         {
@@ -207,6 +213,29 @@ namespace DedicatedServer.Utils
                 Game1.server.kick(farmer.UniqueMultiplayerID);
             }
         }
+
+        /// <summary>
+        ///         Changes the settings so that monsters spawn on
+        /// <br/>   the farm or not. Spawned monsters are not reset.
+        /// <br/>   
+        /// <br/>   true : The monsters will appear
+        /// <br/>   false: No monsters will appear
+        /// </summary>
+        public static bool SpawnMonstersAtNight
+        {
+            get
+            {
+                return Game1.spawnMonstersAtNight;
+            }
+            set
+            {
+                Game1.spawnMonstersAtNight = value;
+                Game1.game1.SetNewGameOption("SpawnMonstersAtNight", value);
+                config.SpawnMonstersOnFarmAtNight = value;
+                helper.WriteConfig(config);
+            }
+        }
+
 
         #region TRY_ACTIVATING_INVITE_CODE
 

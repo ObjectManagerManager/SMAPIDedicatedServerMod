@@ -109,11 +109,11 @@ namespace DedicatedServer.MessageCommands
                     MultiplayerOptions.SaveInviteCode();
                     if (MultiplayerOptions.IsInviteCodeAvailable)
                     {
-                        chatBox.textBoxEnter($"Your invite code is saved in the mod folder in the file {MultiplayerOptions.inviteCodeSaveFile}.");
+                        chatBox.textBoxEnter($"Your invite code is saved in the mod folder in the file {MultiplayerOptions.inviteCodeSaveFile}." + TextColor.Green);
                     }
                     else
                     {
-                        chatBox.textBoxEnter($"The game has no invite code.");
+                        chatBox.textBoxEnter($"The game has no invite code." + TextColor.Pink);
                     }
                     break;
 
@@ -141,6 +141,19 @@ namespace DedicatedServer.MessageCommands
 
                 case "shutdown": // /message ServerBot Shutdown
                     RestartDay.ShutDown((seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds"));
+                    break;
+
+                case "spawnmonster": // /message ServerBot SpawnMonster
+                    if (MultiplayerOptions.SpawnMonstersAtNight)
+                    {
+                        chatBox.textBoxEnter($"No more monsters will appear." + TextColor.Green);
+                        MultiplayerOptions.SpawnMonstersAtNight = false;
+                    }
+                    else
+                    {
+                        chatBox.textBoxEnter($"Monsters will appear." + TextColor.Red);
+                        MultiplayerOptions.SpawnMonstersAtNight = true;
+                    }
                     break;
 
                 case "mbp": // /message ServerBot mbp on
