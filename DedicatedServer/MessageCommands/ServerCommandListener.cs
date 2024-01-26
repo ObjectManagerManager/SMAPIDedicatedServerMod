@@ -51,11 +51,8 @@ namespace DedicatedServer.MessageCommands
                 switch (command)
                 {
                     case "letmeplay":
+                        chatBox.textBoxEnter($"The host is now a player, all host functions are deactivated." + TextColor.Green);
                         HostAutomation.LetMePlay();
-                        break;
-
-                    case "takeover":
-                        HostAutomation.TakeOver();
                         break;
 
                     #region DEBUG_COMMANDS
@@ -81,6 +78,7 @@ namespace DedicatedServer.MessageCommands
 
                     case "location":
                         var location = Game1.player.getTileLocation();
+                        chatBox.textBoxEnter("location: " + Game1.player.currentLocation.ToString());
                         chatBox.textBoxEnter("x: " + location.X + ", y:" + location.Y);
                         break;
 
@@ -105,6 +103,11 @@ namespace DedicatedServer.MessageCommands
 
             switch (command)
             {
+                case "takeover":
+                    chatBox.textBoxEnter($"Control has been transferred to the host, all host functions are switched on." + TextColor.Aqua);
+                    HostAutomation.TakeOver();
+                    break;
+
                 case "safeinvitecode": // /message ServerBot SafeInviteCode
                     MultiplayerOptions.SaveInviteCode();
                     if (MultiplayerOptions.IsInviteCodeAvailable)
@@ -113,34 +116,39 @@ namespace DedicatedServer.MessageCommands
                     }
                     else
                     {
-                        chatBox.textBoxEnter($"The game has no invite code." + TextColor.Pink);
+                        chatBox.textBoxEnter($"The game has no invite code." + TextColor.Red);
                     }
                     break;
 
                 case "invitecode": // /message ServerBot InviteCode
-                    chatBox.textBoxEnter($"Invite code: {MultiplayerOptions.InviteCode}");
+                    chatBox.textBoxEnter($"Invite code: {MultiplayerOptions.InviteCode}" + ("" == MultiplayerOptions.InviteCode ? TextColor.Red : TextColor.Green) );
                     break;
 
                 case "sleep": // /message ServerBot Sleep
+                    if (false == HostAutomation.EnableHostAutomation)
+                    {
+                        chatBox.textBoxEnter($"Cannot start sleep because the host is controlled by the player." + TextColor.Red);
+                        break;
+                    }
                     if (Sleeping.ShouldSleepOverwrite)
                     {
                         Sleeping.ShouldSleepOverwrite = false;
-                        chatBox.textBoxEnter($"The host is back on his feet.");
+                        chatBox.textBoxEnter($"The host is back on his feet." + TextColor.Aqua);
                     }
                     else
                     {
-                        chatBox.textBoxEnter($"The host will go to sleep.");
+                        chatBox.textBoxEnter($"The host will go to sleep." + TextColor.Green);
                         Sleeping.ShouldSleepOverwrite = true;
                     }
                     
                     break;
 
                 case "resetday": // /message ServerBot ResetDay
-                    RestartDay.ResetDay((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds"));
+                    RestartDay.ResetDay((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
                     break;
 
                 case "shutdown": // /message ServerBot Shutdown
-                    RestartDay.ShutDown((seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds"));
+                    RestartDay.ShutDown((seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds" + TextColor.Orange));
                     break;
 
                 case "spawnmonster": // /message ServerBot SpawnMonster
@@ -168,19 +176,19 @@ namespace DedicatedServer.MessageCommands
                     {
                         if (config.MoveBuildPermission == param)
                         {
-                            chatBox.textBoxEnter("/message " + sourceFarmer + " Error: The parameter is already " + config.MoveBuildPermission);
+                            chatBox.textBoxEnter("Parameter for MoveBuildPermission is already " + config.MoveBuildPermission + TextColor.Orange);
                         }
                         else
                         {
                             config.MoveBuildPermission = param;
-                            chatBox.textBoxEnter(sourceFarmer + " Changed MoveBuildPermission to " + config.MoveBuildPermission);
+                            chatBox.textBoxEnter($"Changed MoveBuildPermission to {config.MoveBuildPermission}" + TextColor.Green );
                             chatBox.textBoxEnter("/mbp " + config.MoveBuildPermission);
                             helper.WriteConfig(config);
                         }
                     }
                     else
                     {
-                        chatBox.textBoxEnter("/message " + sourceFarmer + " Error: Only the following parameter are valid: " + String.Join(", ", moveBuildPermissionParameter.ToArray()));
+                        chatBox.textBoxEnter($"Only the following parameters are valid for MoveBuildPermission: {String.Join(", ", moveBuildPermissionParameter.ToArray())}" + TextColor.Red);
                     }
 
                     break;

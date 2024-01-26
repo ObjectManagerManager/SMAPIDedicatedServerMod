@@ -42,6 +42,7 @@ Upon running SMAPI with the mod installed for the first time, a `config.json` fi
 
 All commands in the game must be sent privately to the player `ServerBot`. For example, you must write the following `/message ServerBot MoveBuildPermission on`:
 
+- `TakeOver`: The host player returns control to the host, all host functions are switched on. Cancels the `LetMePlay` command
 - `SafeInviteCode`: A file `invite_code.txt` with the invitation code is created in this mods folder. If there is no invitation code, an empty string is saved.
 - `InviteCode`: The invitation code is printed.
 - `Sleep`: (Toggle command) \
@@ -59,8 +60,7 @@ Changes farmhands permissions to move buildings from the Carpenter's shop. Set t
 
 All these commands only work if you are the host. This allows you to take control of the server. The host sends the commands by entering them directly, without anything before or after:
 
-- `letmeplay`: Lets the player take over the host. All host functions are switched off.
-- `takeover`: The player returns control to the host, all host functions are switched on.
+- `LetMePlay`: Lets the player take over the host. All host functions are switched off. The `TakeOver` command must be entered to hand over the controller.
 
 ## Running the Server on Linux Without GUI
 

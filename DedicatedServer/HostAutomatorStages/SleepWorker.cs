@@ -67,6 +67,9 @@ namespace DedicatedServer.HostAutomatorStages
         /// <br/>   false: The host should not go to bed or get up
         /// <br/>   
         /// <br/>   When all players leave the game, the next day is started.
+        /// <br/>   
+        /// <br/>   If the host is controlled by a player, the command must not
+        /// <br/>   be executed.
         /// </summary>
         protected static bool ShouldSleepOverwrite
         {
@@ -74,9 +77,12 @@ namespace DedicatedServer.HostAutomatorStages
             {
                 if (value)
                 {
-                    AddOnDayStarted(OnDayStartedWorker);
-                    HostAutomation.PreventPause = true;
-                    _ShouldSleepOverwrite = true;
+                    if (HostAutomation.EnableHostAutomation)
+                    {
+                        AddOnDayStarted(OnDayStartedWorker);
+                        HostAutomation.PreventPause = true;
+                        _ShouldSleepOverwrite = true;
+                    }
                 }
                 else
                 {
@@ -113,6 +119,9 @@ namespace DedicatedServer.HostAutomatorStages
         /// <summary>
         ///         Waits until the host is back on his feet before the handler
         /// <br/>   <see cref="OnDayStartedWorker"/> is removed.
+        /// <br/>   
+        /// <br/>   Deactivating Sleep restores the normal behavior of the mod,
+        /// <br/>   when the host is not controlled by a player.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -122,7 +131,10 @@ namespace DedicatedServer.HostAutomatorStages
             {
                 RemoveOneSecondUpdateTicked(OnOneSecondUpdateTicked);
                 RemoveOnDayStarted(OnDayStartedWorker);
-                HostAutomation.TakeOver();
+                if (HostAutomation.EnableHostAutomation)
+                {
+                    HostAutomation.TakeOver();
+                }
             }
         }
 

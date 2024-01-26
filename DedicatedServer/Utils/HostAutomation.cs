@@ -37,7 +37,10 @@ namespace DedicatedServer.Utils
         }
 
         /// <summary>
-        ///         Lets the player take over the host. All host functions are switched off.
+        ///         Lets the player take over the host.
+        /// <br/>   
+        /// <br/>   - All host functions are switched off.
+        /// <br/>   - Deactivates the Sleep command.
         /// </summary>
         public static void LetMePlay()
         {
