@@ -40,11 +40,27 @@ Upon running SMAPI with the mod installed for the first time, a `config.json` fi
 
 ## In Game Command
 
-All commands in the game must be sent privately to the player `ServerBot`. For example, you must write the following `/message ServerBot MoveBuildPermission on`.
+All commands in the game must be sent privately to the player `ServerBot`. For example, you must write the following `/message ServerBot MoveBuildPermission on`:
 
-- `MoveBuildPermission`: Changes farmhands permissions to move buildings from the Carpenter's shop. Set to `off` to entirely disable moving buildings, set to `owned` to allow farmhands to move buildings that they purchased, or set to `on` to allow moving all buildings. The changes are transferred to the `config.json` file.
-- `movepermissiong`: Alias for MoveBuildPermission
-- `mbp`: Alias for MoveBuildPermission
+- `TakeOver`: The host player returns control to the host, all host functions are switched on. Cancels the `LetMePlay` command
+- `SafeInviteCode`: A file `invite_code.txt` with the invitation code is created in this mods folder. If there is no invitation code, an empty string is saved.
+- `InviteCode`: The invitation code is printed.
+- `Sleep`: (Toggle command) \
+  When it is sent, the host goes to bed. When all players leave the game or go to bed, the next day begins. On a second send, the host will get up and the mod's normal behavior will be restored.
+- `ResetDay`: Kicks all players and restarts the day.
+- `Shutdown`: Kicks all players and starts a new day.
+- `SpawnMonster`: (Toggle command, Saved in config) \
+  Changes the settings so that monsters spawn on the farm or not. Spawned monsters are not reset.
+- `MoveBuildPermission` or
+- `MovePermissiong` or
+- `MBP`: (Saved in config) \
+Changes farmhands permissions to move buildings from the Carpenter's shop. Set to `off` to entirely disable moving buildings, set to `owned` to allow farmhands to move buildings that they purchased, or set to `on` to allow moving all buildings.
+
+## Host in Game Command
+
+All these commands only work if you are the host. This allows you to take control of the server. The host sends the commands by entering them directly, without anything before or after:
+
+- `LetMePlay`: Lets the player take over the host. All host functions are switched off. The `TakeOver` command must be entered to hand over the controller.
 
 ## Running the Server on Linux Without GUI
 

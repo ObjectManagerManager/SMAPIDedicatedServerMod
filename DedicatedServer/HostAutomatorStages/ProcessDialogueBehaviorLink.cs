@@ -9,6 +9,8 @@ namespace DedicatedServer.HostAutomatorStages
     {
         private static FieldInfo textBoxFieldInfo = typeof(NamingMenu).GetField("textBox", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        private static MethodInfo itemListMenuInfo = typeof(ItemListMenu).GetMethod("okClicked", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private ModConfig config;
 
         public ProcessDialogueBehaviorLink(ModConfig config, BehaviorLink next = null) : base(next)
@@ -115,6 +117,12 @@ namespace DedicatedServer.HostAutomatorStages
                     {
                         lum.okButtonClicked();
                     }
+                }
+                else if (Game1.activeClickableMenu is ItemListMenu ilm)
+                {
+                    // Lost item dialog when the host faints
+                    itemListMenuInfo?.Invoke(ilm, new object[] { });
+                    state.SkipDialogue();
                 }
                 else
                 {
