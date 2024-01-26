@@ -11,7 +11,6 @@ namespace DedicatedServer.Utils
     {
         private Invincible() : base(null)
         {
-            
         }
 
         /// <summary>

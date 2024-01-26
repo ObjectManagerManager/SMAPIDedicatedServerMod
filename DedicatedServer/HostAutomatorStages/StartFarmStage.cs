@@ -2,6 +2,7 @@
 using DedicatedServer.Config;
 using DedicatedServer.Crops;
 using DedicatedServer.MessageCommands;
+using DedicatedServer.Utils;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -23,10 +24,13 @@ namespace DedicatedServer.HostAutomatorStages
         private CropSaver cropSaver = null;
         private AutomatedHost automatedHost = null;
         private InvincibleWorker invincibleWorker = null;
+        private SleepWorker sleepWorker = null;
+        private RestartDayWorker restartDayWorker = null;
         private BuildCommandListener buildCommandListener = null;
         private DemolishCommandListener demolishCommandListener = null;
         private PauseCommandListener pauseCommandListener = null;
         private ServerCommandListener serverCommandListener = null;
+        private MultiplayerOptions multiplayerOptions = null;
 
         public StartFarmStage(IModHelper helper, IMonitor monitor, ModConfig config) : base(helper)
         {
@@ -335,6 +339,10 @@ namespace DedicatedServer.HostAutomatorStages
             automatedHost.Enable();
             invincibleWorker = new InvincibleWorker(helper);
             invincibleWorker.Enable();
+            sleepWorker = new SleepWorker(helper);
+            restartDayWorker = new RestartDayWorker(helper);
+            multiplayerOptions = new MultiplayerOptions(helper, config, chatBox);
+            multiplayerOptions.TryActivatingInviteCode();
 
             buildCommandListener = new BuildCommandListener(chatBox);
             buildCommandListener.Enable();

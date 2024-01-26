@@ -1,6 +1,9 @@
 ﻿using DedicatedServer.HostAutomatorStages;
 using Netcode;
+using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Monsters;
 using StardewValley.Network;
 using System;
 using System.Collections.Generic;
@@ -8,19 +11,20 @@ using System.Reflection;
 
 namespace DedicatedServer.Utils
 {
-    internal class Sleeping
-    {
-        public static bool IsSleeping()
+    internal abstract class Sleeping : SleepWorker
+    {        
+        private Sleeping() : base(null)
         {
-            return ReadyCheckHelper.IsReady("sleep", Game1.player);
         }
-        public static bool OthersInBed(int numOtherPlayers)
+
+        /// <summary>
+        /// <inheritdoc cref = "SleepWorker.ShouldSleepOverwrite"/>
+        /// </summary>
+        public static new bool ShouldSleepOverwrite
         {
-            return Game1.player.team.GetNumberReady("sleep") == (numOtherPlayers + (IsSleeping() ? 1 : 0));
+            get { return SleepWorker.ShouldSleepOverwrite; }
+            set { SleepWorker.ShouldSleepOverwrite = value; }
         }
-        public static bool ShouldSleep(int numOtherPlayers)
-        {
-            return numOtherPlayers > 0 && (Game1.timeOfDay >= 2530 || OthersInBed(numOtherPlayers));
-        }
+
     }
 }
