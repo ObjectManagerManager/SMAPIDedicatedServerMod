@@ -20,7 +20,7 @@ namespace DedicatedServer.Utils
         /// <param name="action">
         ///         Function that is executed every second until the
         /// <br/>   event is executed. The parameter is the remaining time.</param>
-        public static void ForcedSleep(Action<int> action)
+        public static void ForceSleep(Action<int> action)
         {
             RestartDayWorker.SavesGameRestartsDay(
                 time: 10,

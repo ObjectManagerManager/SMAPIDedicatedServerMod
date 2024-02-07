@@ -149,15 +149,15 @@ namespace DedicatedServer.MessageCommands
                     }
                     break;
 
-                case "forcesleep": // /message ServerBot ForcedSleep
-                    RestartDay.ForcedSleep((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
+                case "forcesleep": // /message ServerBot ForceSleep
+                    RestartDay.ForceSleep((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
                     break;
 
-                case "resetday": // /message ServerBot ResetDay
+                case "forceresetday": // /message ServerBot ForceResetDay
                     RestartDay.ResetDay((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
                     break;
 
-                case "shutdown": // /message ServerBot Shutdown
+                case "forceshutdown": // /message ServerBot ForceShutDown
                     RestartDay.ShutDown((seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds" + TextColor.Orange));
                     break;
 
