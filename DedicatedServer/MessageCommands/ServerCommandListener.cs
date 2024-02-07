@@ -2,13 +2,11 @@
 using DedicatedServer.Config;
 using DedicatedServer.Utils;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace DedicatedServer.MessageCommands
@@ -57,6 +55,15 @@ namespace DedicatedServer.MessageCommands
 
                     #region DEBUG_COMMANDS
                     #if false
+
+                    case "emptyinventoryall": // /message serverbot EmptyInventoryAll
+                        ServerHost.EmptyHostInventory();
+                        break;
+
+                    case "menu":
+                        var menu = Game1.activeClickableMenu;
+                        chatBox.textBoxEnter($" Menu is {(menu?.ToString() ?? "")}" + TextColor.Green);
+                        break;
 
                     case "letmecontrol":
                         HostAutomation.LetMeControl();
@@ -140,14 +147,17 @@ namespace DedicatedServer.MessageCommands
                         chatBox.textBoxEnter($"The host will go to sleep." + TextColor.Green);
                         Sleeping.ShouldSleepOverwrite = true;
                     }
-                    
                     break;
 
-                case "resetday": // /message ServerBot ResetDay
+                case "forcesleep": // /message ServerBot ForceSleep
+                    RestartDay.ForceSleep((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
+                    break;
+
+                case "forceresetday": // /message ServerBot ForceResetDay
                     RestartDay.ResetDay((seconds) => chatBox.textBoxEnter($"Attention: Server will reset the day in {seconds} seconds" + TextColor.Orange));
                     break;
 
-                case "shutdown": // /message ServerBot Shutdown
+                case "forceshutdown": // /message ServerBot ForceShutDown
                     RestartDay.ShutDown((seconds) => chatBox.textBoxEnter($"Attention: Server will shut down in {seconds} seconds" + TextColor.Orange));
                     break;
 
