@@ -1,6 +1,9 @@
 ﻿using DedicatedServer.Config;
+using DedicatedServer.Utils;
 using StardewValley;
 using StardewValley.Menus;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace DedicatedServer.HostAutomatorStages
@@ -8,6 +11,8 @@ namespace DedicatedServer.HostAutomatorStages
     internal class ProcessDialogueBehaviorLink : BehaviorLink
     {
         private static FieldInfo textBoxFieldInfo = typeof(NamingMenu).GetField("textBox", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static MethodInfo itemListMenuInfo = typeof(ItemListMenu).GetMethod("okClicked", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private ModConfig config;
 
@@ -116,6 +121,51 @@ namespace DedicatedServer.HostAutomatorStages
                         lum.okButtonClicked();
                     }
                 }
+                else if (Game1.activeClickableMenu is ItemListMenu ilm)
+                {
+                    // Lost item dialog when the host faints
+                    itemListMenuInfo?.Invoke(ilm, new object[] { });
+                    state.SkipDialogue();
+                }
+                else if (Game1.activeClickableMenu is ItemGrabMenu igm)
+                {
+                    // Good to test when you go into the mine and are presented with a sword
+
+                    var count = igm.ItemsToGrabMenu.actualInventory.Count();
+
+                    if (false == ServerHost.EnsureFreeSlotNumber(count))
+                    {
+                        // Try again later
+                        return;
+                    }
+
+                    var del = new List<Item>();
+                    foreach (var item in igm.ItemsToGrabMenu.actualInventory)
+                    {
+                        if(null == item) { continue; }
+
+                        Game1.player.addItemToInventoryBool(item);
+                        del.Add(item);
+                    }
+
+                    foreach (var item in del)
+                    {
+                        igm.ItemsToGrabMenu.actualInventory.Remove(item);
+                    }
+
+                    if(false == igm.areAllItemsTaken())
+                    {
+                        // Drop all remaining items from the menu
+                        igm.DropRemainingItems();
+                    }
+
+                    if (igm.readyToClose())
+                    {
+                        okClicked();
+                    }
+
+                    state.SkipDialogue();
+                }
                 else
                 {
                     state.ClearBetweenDialoguesWaitTicks();
@@ -127,6 +177,17 @@ namespace DedicatedServer.HostAutomatorStages
                 state.ClearBetweenDialoguesWaitTicks();
                 processNext(state);
             }
+        }
+
+        private void okClicked()
+        {
+            Game1.activeClickableMenu = null;
+            if (Game1.CurrentEvent != null)
+            {
+                Game1.CurrentEvent.CurrentCommand++;
+            }
+
+            Game1.playSound("bigDeSelect");
         }
     }
 }
